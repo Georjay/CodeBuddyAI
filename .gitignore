@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# JavaScript
+node_modules/
+build/
+dist/
+
+# IDEs
+.vscode/
+.idea/
+
+# Environment variables (crucial for API keys later)
+.env

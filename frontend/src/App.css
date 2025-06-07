@@ -1,0 +1,232 @@
+    /* General Body Styling */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1a1e26; /* Dark background */
+      color: #abb2bf; /* Light grey text */
+      font-family: 'Inter', sans-serif; /* Modern, clean font */
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Align to top */
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Root element for React app */
+    #root {
+      width: 100%;
+      max-width: 1000px; /* Limit overall width for readability */
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* Main App Container */
+    .App {
+      background-color: #282c34; /* Slightly lighter dark background for the app itself */
+      border-radius: 12px; /* Soft rounded corners */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow */
+      padding: 30px;
+      margin-bottom: 20px; /* Space from bottom */
+      display: flex;
+      flex-direction: column;
+      gap: 25px; /* Space between sections */
+    }
+
+    /* Header Styling */
+    .app-header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #444c56; /* Subtle separator */
+      margin-bottom: 20px;
+    }
+
+    .app-header h1 {
+      font-size: 2.8em;
+      color: #61dafb; /* Accent color for title */
+      margin-bottom: 5px;
+      letter-spacing: -0.05em;
+    }
+
+    .app-header p {
+      font-size: 1.1em;
+      color: #abb2bf;
+    }
+
+    /* Main Content Area */
+    .app-main {
+      display: flex;
+      flex-direction: column; /* Stack sections vertically on small screens */
+      gap: 25px;
+    }
+
+    /* Card Styling for Sections */
+    .card {
+      background-color: #3a404a; /* Card background */
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Headings within sections */
+    h2 {
+      color: #e0e0e0; /* Lighter color for section headings */
+      font-size: 1.8em;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #444c56;
+      padding-bottom: 10px;
+    }
+
+    .sub-heading {
+      color: #e0e0e0;
+      font-size: 1.2em;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    /* Controls Group (Language Select) */
+    .controls-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap; /* Allow wrapping on small screens */
+      gap: 15px; /* Space between label and select */
+    }
+
+    .input-label {
+      font-weight: bold;
+      color: #e0e0e0;
+      font-size: 1.1em;
+    }
+
+    .language-select {
+      padding: 10px 15px;
+      border: 1px solid #444c56;
+      border-radius: 6px;
+      background-color: #21252b; /* Darker background for select */
+      color: #abb2bf;
+      font-size: 1em;
+      cursor: pointer;
+      appearance: none; /* Remove default arrow */
+      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23abb2bf%22%20d%3D%22M287%2C197.4L156.4%2C66.8c-4.2-4.2-11-4.2-15.2%2C0L5.4%2C197.4c-4.2%2C4.2-4.2%2C11%2C0%2C15.2l15.2%2C15.2c4.2%2C4.2%2C11%2C4.2%2C15.2%2C0l110-110l110%2C110c4.2%2C4.2%2C11%2C4.2%2C15.2%2C0l15.2-15.2C291.2%2C208.4%2C291.2%2C201.6%2C287%2C197.4z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+      background-repeat: no-repeat;
+      background-position: right 10px top 50%;
+      background-size: 10px auto;
+    }
+
+    /* Textarea Styling (Code Input, Error Message) */
+    textarea {
+      width: calc(100% - 30px); /* Account for padding */
+      padding: 15px;
+      margin-top: 10px;
+      border: 1px solid #444c56;
+      border-radius: 8px;
+      background-color: #21252b; /* Dark background for code */
+      color: #abb2bf; /* Light text for code */
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospace font for code */
+      font-size: 0.98em;
+      min-height: 200px; /* Generous height for code input */
+      resize: vertical; /* Allow vertical resizing */
+      line-height: 1.5;
+    }
+
+    textarea.error-message-input {
+      min-height: 80px; /* Smaller height for error message */
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap; /* Allow buttons to wrap to next line */
+      gap: 15px; /* Space between buttons */
+      margin-top: 25px;
+      justify-content: center; /* Center buttons horizontally */
+    }
+
+    .action-button {
+      background: linear-gradient(135deg, #61dafb, #21a1f1); /* Blue gradient for buttons */
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.05em;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    }
+
+    .action-button:hover:not(:disabled) {
+      background: linear-gradient(135deg, #21a1f1, #007bff); /* Darker blue on hover */
+      transform: translateY(-2px); /* Slight lift effect */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-button:disabled {
+      background-color: #555c6b; /* Grey for disabled buttons */
+      color: #999;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* AI Output Section */
+    .ai-output {
+      background-color: #21252b; /* Dark background for AI output */
+      padding: 20px;
+      border-radius: 8px;
+      white-space: pre-wrap; /* Crucial to preserve AI's formatting (line breaks, spaces) */
+      word-wrap: break-word; /* Break long words that don't have spaces */
+      max-height: 450px; /* Limit height and add scrollbar if content is too long */
+      overflow-y: auto; /* Enable vertical scrolling */
+      text-align: left;
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.95em;
+      border: 1px solid #444c56;
+      color: #e0e0e0; /* Lighter text for output */
+    }
+
+    /* Status Messages (Loading, Error) */
+    .status-message {
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .loading-message {
+      color: #56b6c2; /* Teal color for loading */
+      background-color: #3a404a;
+    }
+
+    .error-message {
+      color: #e06c75; /* Soft red for errors */
+      background-color: #3a404a;
+    }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #444c56;
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #8892b0;
+    }
+
+    /* Responsive Adjustments */
+    @media (min-width: 768px) {
+      .app-main {
+        flex-direction: row; /* Side-by-side layout on larger screens */
+      }
+
+      .input-section, .output-section {
+        flex: 1; /* Take equal width */
+      }
+
+      .action-buttons {
+        justify-content: flex-start; /* Align buttons to the left */
+      }
+    }

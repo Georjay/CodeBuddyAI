@@ -57,6 +57,16 @@ class CodeExplanationRequest(BaseModel):
     code: str
     language: str
 
+class ErrorAnalysisRequest(BaseModel):
+    code: str
+    language: str
+    error_message: str
+
+class SuggestionsRequest(BaseModel):
+    code: str
+    language: str
+    problem_description: str = "" # Optional, if user wants to describe the problem
+
 
 @app.get("/")
 async def read_root():
@@ -122,4 +132,101 @@ async def explain_code(request: CodeExplanationRequest):
         "explanation": ai_explanation,
         "received_code": code_to_explain,
         "received_language": programming_language
+    }
+
+@app.post("/api/analyze-error")
+async def analyze_error(request: ErrorAnalysisRequest):
+    """
+    Receives code, language, and an error message, sends to AI for analysis.
+    """
+    code_to_analyze = request.code
+    programming_language = request.language
+    error_msg = request.error_message
+
+    # --- Construct the prompt for Error Analysis ---
+    prompt = f"""
+    As an expert debugger and programming tutor for beginners, analyze the following error message
+    in the context of the provided {programming_language} code.
+    Explain:
+    1. What the error message means in simple terms.
+    2. Why it occurred in this specific code.
+    3. Provide clear, actionable steps on how to fix it.
+    Focus on explaining the concepts involved for a beginner.
+
+    Here is the error message:
+    ```
+    {error_msg}
+    ```
+
+    Here is the {programming_language} code:
+    ```{programming_language}
+    {code_to_analyze}
+    ```
+    """
+
+    try:
+        response = await model.generate_content_async(prompt)
+        ai_analysis = response.text
+    except Exception as e:
+        print(f"Error calling Gemini API for error analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get error analysis from AI: {e}")
+
+    return {
+        "explanation": ai_analysis,
+        "received_code": code_to_analyze,
+        "received_language": programming_language,
+        "received_error_message": error_msg
+    }
+
+@app.post("/api/get-suggestions")
+async def get_suggestions(request: SuggestionsRequest):
+    """
+    Receives code and language (and optional problem description), sends to AI for suggestions.
+    """
+    code_for_suggestions = request.code
+    programming_language = request.language
+    problem_description = request.problem_description
+
+    # --- Construct the prompt for Suggestions ---
+    # This prompt is more open-ended for general help or improvements.
+    base_prompt = f"""
+    As an expert programming tutor for beginners, review the following {programming_language} code.
+    Provide helpful suggestions for improvement, best practices, or potential issues.
+    Explain your suggestions clearly, in simple terms, and provide code examples where applicable.
+    Aim to teach concepts rather than just providing solutions.
+    """
+
+    if problem_description.strip(): # If user provided a specific problem
+        prompt = f"""
+        {base_prompt}
+        The user is trying to achieve the following with their code: "{problem_description}".
+        Given that goal, how can the code be improved or fixed?
+
+        Here is the {programming_language} code:
+        ```{programming_language}
+        {code_for_suggestions}
+        ```
+        """
+    else: # If no specific problem, just general improvements
+        prompt = f"""
+        {base_prompt}
+        Provide general improvements, optimizations, or best practices for the following {programming_language} code.
+
+        Here is the {programming_language} code:
+        ```{programming_language}
+        {code_for_suggestions}
+        ```
+        """
+    try:
+        response = await model.generate_content_async(prompt)
+        ai_suggestions = response.text
+    except Exception as e:
+        print(f"Error calling Gemini API for suggestions: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get suggestions from AI: {e}")
+
+    return {
+        "explanation": ai_suggestions, # We reuse 'explanation' key for consistency with explain-code
+        "received_code": code_for_suggestions,
+        "received_language": programming_language,
+        "received_problem_description": problem_description
     }

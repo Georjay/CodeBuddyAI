@@ -16,5 +16,5 @@ dist/
 .vscode/
 .idea/
 
-# Environment variables (crucial for API keys later)
+# Environment variables (crucial for API keys)
 .env

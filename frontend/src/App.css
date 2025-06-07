@@ -196,6 +196,11 @@
       font-weight: bold;
     }
 
+    .app-logo {
+    width: 100px; /* Or whatever size you need, like 50px, 150px, etc. */
+    height: auto; /* This keeps the image's proportions correct */
+  }
+
     .loading-message {
       color: #56b6c2; /* Teal color for loading */
       background-color: #3a404a;

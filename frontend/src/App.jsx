@@ -1,47 +1,114 @@
-import { useState } from 'react';
-import './App.css'; // Link to styling
+import { useState, useEffect } from 'react'; // Added useEffect
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'; // Import the highlighter
+// Import a style for the highlighter (github-dark works well with our theme)
+import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Or use 'docco', 'atom-one-dark' etc. for light/dark
+import {
+  python, javascript, java, cpp, csharp, xml, css, sql, php, ruby, go // Import languages you'll support
+} from 'react-syntax-highlighter/dist/esm/languages/hljs'; // Use 'hljs' for common languages
+
+import './App.css';
+
+// Register languages with the highlighter
+// This tells the highlighter how to understand and color different languages
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
+SyntaxHighlighter.registerLanguage('java', java);
+SyntaxHighlighter.registerLanguage('c++', cpp);
+SyntaxHighlighter.registerLanguage('csharp', csharp);
+SyntaxHighlighter.registerLanguage('html', xml); // HTML often uses XML parser
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('sql', sql);
+SyntaxHighlighter.registerLanguage('php', php);
+SyntaxHighlighter.registerLanguage('ruby', ruby);
+SyntaxHighlighter.registerLanguage('go', go);
+
 
 function App() {
   // --- STATE VARIABLES ---
-  // 1. For user input
-  const [code, setCode] = useState(''); // Stores the code the user types
-  const [language, setLanguage] = useState('python'); // Stores the selected language (default to python)
-  const [errorMessage, setErrorMessage] = useState(''); // Stores the error message for analysis
+  const [code, setCode] = useState('');
+  const [language, setLanguage] = useState('python');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // 2. For AI response and status
-  const [aiExplanation, setAiExplanation] = useState("Your AI explanation will appear here."); // Stores the AI's explanation
-  const [loading, setLoading] = useState(false); // True when waiting for AI response
-  const [error, setError] = useState(null); // Stores any error from the backend/AI
+  const [aiExplanation, setAiExplanation] = useState("Your AI explanation will appear here.");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // --- Helper to extract code blocks for highlighting ---
+  // This function will look for markdown code blocks (```language ... ```) in the AI's response
+  const renderAiExplanation = (text) => {
+    const parts = [];
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g; // Regex to find code blocks
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(text)) !== null) {
+      const [fullMatch, langHint, codeContent] = match;
+      const preCodeText = text.substring(lastIndex, match.index);
+
+      if (preCodeText) {
+        parts.push(<p key={`text-${lastIndex}`}>{preCodeText}</p>);
+      }
+
+      // Use the language hint from the markdown, or default to the selected language if none is given
+      const detectedLang = langHint || language;
+
+      parts.push(
+        <SyntaxHighlighter
+          key={`code-${match.index}`}
+          language={detectedLang}
+          style={coldarkDark} // The dark theme for the highlighter
+          showLineNumbers={true} // Show line numbers
+          wrapLines={true} // Wrap long lines of code
+          customStyle={{
+            backgroundColor: '#1E2127', // Darker background for code blocks
+            borderRadius: '8px',
+            padding: '15px',
+            marginBottom: '10px',
+            overflowX: 'auto', // Allow horizontal scrolling for very long lines
+            fontSize: '0.9em',
+          }}
+          lineProps={(lineNumber) => ({
+            style: { display: 'block', padding: '0 5px' }, // Line padding
+            onClick: () => { /* Optional: add line click handling */ }
+          })}
+        >
+          {codeContent}
+        </SyntaxHighlighter>
+      );
+      lastIndex = match.index + fullMatch.length;
+    }
+
+    const remainingText = text.substring(lastIndex);
+    if (remainingText) {
+      parts.push(<p key={`text-${lastIndex}`}>{remainingText}</p>);
+    }
+    return parts;
+  };
+
 
   // --- FUNCTION TO SEND REQUEST TO BACKEND ---
-  // This function handles sending data to your FastAPI backend based on the button clicked.
   const sendCodeToBackend = async (type) => {
-    setLoading(true); // Show loading state
-    setError(null);   // Clear any previous errors
-    setAiExplanation("Thinking..."); // Display a "thinking" message
+    setLoading(true);
+    setError(null);
+    setAiExplanation("Thinking...");
 
-    // Determine which FastAPI endpoint to call and what data to send
     let endpoint = '';
     let requestBody = {};
     let promptType = '';
 
     if (type === 'explain') {
-      endpoint = '/api/explain-code'; // Endpoint for code explanation
-      requestBody = { code, language }; // Data to send: code and language
-      promptType = 'explain'; // For error messages
+      endpoint = '/api/explain-code';
+      requestBody = { code, language };
+      promptType = 'explain';
     } else if (type === 'analyzeError') {
-      // Future endpoint for error analysis
       endpoint = '/api/analyze-error';
       requestBody = { code, language, error_message: errorMessage };
       promptType = 'analyze error';
     } else if (type === 'suggestions') {
-      // Future endpoint for general suggestions
       endpoint = '/api/get-suggestions';
-      // For suggestions, we might add an input for problem_description later
       requestBody = { code, language, problem_description: "" };
       promptType = 'get suggestions';
     } else {
-      // Handle invalid action type
       setError("Invalid action type. Please try again.");
       setLoading(false);
       setAiExplanation("An internal error occurred.");
@@ -49,34 +116,26 @@ function App() {
     }
 
     try {
-      // Make the POST request to your FastAPI backend
       const response = await fetch(`http://localhost:8000${endpoint}`, {
-        method: 'POST', // Use POST since we're sending data in the body
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // Specify that the body is JSON
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody), // Convert the JavaScript object to a JSON string
+        body: JSON.stringify(requestBody),
       });
 
-      // Check if the response was successful (HTTP status 200-299)
       if (!response.ok) {
-        // If not successful, try to parse the error message from the backend
         const errorData = await response.json();
-        // Throw an error with a more specific message if available
         throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
       }
 
-      // Parse the successful JSON response from FastAPI
       const data = await response.json();
-      // Update the AI explanation state with the received explanation
       setAiExplanation(data.explanation || data.api_message || JSON.stringify(data, null, 2));
     } catch (err) {
-      // Catch and handle any errors during the fetch operation
       console.error(`Failed to ${promptType}:`, err);
       setError(`Failed to ${promptType}. Please check your backend connection. Error: ${err.message}`);
       setAiExplanation(`An error occurred. Please check the console for details.`);
     } finally {
-      // Always stop loading, regardless of success or failure
       setLoading(false);
     }
   };
@@ -86,8 +145,9 @@ function App() {
   return (
     <div className="App">
       <header className="app-header">
+        {/* <img src="/codeb.svg" alt="CodeBuddy AI Logo" className="app-logo" /> */}
         <h1>CodeBuddy AI</h1>
-        <p>Your AI-powered assistant for understanding and debugging code. For beginners!</p>
+        <p>Your AI-powered assistant for understanding and debugging code.</p>
       </header>
 
       <main className="app-main">
@@ -112,7 +172,6 @@ function App() {
               <option value="php">PHP</option>
               <option value="ruby">Ruby</option>
               <option value="go">Go</option>
-              {/* Add more languages as needed */}
             </select>
           </div>
 
@@ -136,21 +195,21 @@ function App() {
           <div className="action-buttons">
             <button
               onClick={() => sendCodeToBackend('explain')}
-              disabled={loading || !code.trim()} // Disable if loading or code is empty
+              disabled={loading || !code.trim()}
               className="action-button"
             >
               {loading && aiExplanation === "Thinking..." ? 'Explaining...' : 'Explain Code'}
             </button>
             <button
               onClick={() => sendCodeToBackend('analyzeError')}
-              disabled={loading || !code.trim() || !errorMessage.trim()} // Disable if loading, code or error is empty
+              disabled={loading || !code.trim() || !errorMessage.trim()}
               className="action-button"
             >
               {loading && aiExplanation === "Thinking..." ? 'Analyzing...' : 'Analyze Error'}
             </button>
             <button
               onClick={() => sendCodeToBackend('suggestions')}
-              disabled={loading || !code.trim()} // Disable if loading or code is empty
+              disabled={loading || !code.trim()}
               className="action-button"
             >
               {loading && aiExplanation === "Thinking..." ? 'Suggesting...' : 'Get Suggestions'}
@@ -162,17 +221,17 @@ function App() {
           <h2>AI Buddy's Response</h2>
           {error && <p className="status-message error-message">{error}</p>}
           {loading && !error && <p className="status-message loading-message">Thinking...</p>}
-          {/* Display AI explanation or placeholder. Using <pre> to preserve formatting. */}
+          {/* Display AI explanation with syntax highlighting */}
           {!loading && !error && (
-            <pre className="ai-output">
-              {aiExplanation}
-            </pre>
+            <div className="ai-output-container">
+              {renderAiExplanation(aiExplanation)}
+            </div>
           )}
         </section>
       </main>
 
       <footer className="app-footer">
-        <p>&copy; 2025 CodeBuddy AI. Built with FastAPI and React. Developed by George</p>
+        <p>&copy; 2025 CodeBuddy AI. Built with FastAPI and React.</p>
       </footer>
     </div>
   );

@@ -98,9 +98,14 @@ async def explain_code(request: CodeExplanationRequest):
     prompt = f"""
     As an expert programming tutor for beginners, explain the following {programming_language} code.
     Break down the code line-by-line or in small, logical blocks.
-    Focus on clarity, simplicity, and explain *why* each part works.
-    Avoid jargon where possible, or explain it clearly.
+    Focus on clarity, simplicity, and explain why each part works.
+    Avoid being overly verbose where possible.
     Do not just re-write the code. Provide actionable understanding.
+
+    When providing code examples or showing parts of the original code, always wrap them in markdown code blocks like this:
+    ```python
+    your_code_here
+    ```
 
     Here is the {programming_language} code:
     ```{programming_language}
@@ -151,6 +156,12 @@ async def analyze_error(request: ErrorAnalysisRequest):
     3. Provide clear, actionable steps on how to fix it.
     Focus on explaining the concepts involved for a beginner.
 
+    When providing code examples or showing parts of the original code/fixes, always wrap them in markdown code blocks like this:
+    ```python
+    your_code_example
+    ```
+    Use the appropriate language identifier after the backticks (e.g., `python`, `javascript`, `java`).
+
     Here is the error message:
     ```
     {error_msg}
@@ -192,9 +203,15 @@ async def get_suggestions(request: SuggestionsRequest):
     Provide helpful suggestions for improvement, best practices, or potential issues.
     Explain your suggestions clearly, in simple terms, and provide code examples where applicable.
     Aim to teach concepts rather than just providing solutions.
+
+    When providing code examples, always wrap them in markdown code blocks like this:
+    ```python
+    your_code_example
+    ```
+    Use the appropriate language identifier after the backticks (e.g., `python`, `javascript`, `java`).
     """
 
-    if problem_description.strip(): # If user provided a specific problem
+    if problem_description.strip():
         prompt = f"""
         {base_prompt}
         The user is trying to achieve the following with their code: "{problem_description}".
@@ -205,7 +222,7 @@ async def get_suggestions(request: SuggestionsRequest):
         {code_for_suggestions}
         ```
         """
-    else: # If no specific problem, just general improvements
+    else:
         prompt = f"""
         {base_prompt}
         Provide general improvements, optimizations, or best practices for the following {programming_language} code.

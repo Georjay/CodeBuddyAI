@@ -3,25 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-import google.generativeai as genai #Import Google Generative AI
+import google.generativeai as genai #Google Generative AI import
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Configure Google Gemini API
-# Make sure GEMINI_API_KEY is set in your .env file
+# GEMINI_API_KEY uses the .env file
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 if not gemini_api_key:
     raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in your .env file.")
 genai.configure(api_key=gemini_api_key)
 
-# Initialize the Generative Model (you can choose 'gemini-pro' or other models)
-# 'gemini-pro' is generally good for text-based tasks.
+# Initialize the Generative Model
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 app = FastAPI()
 
-# Temporarily used it to get valid models
+# Temporarily used it to get valid Gemini models as gemini-pro was not working for me
 # @app.get("/api/list-models")
 # async def list_available_models():
 #     try:
@@ -41,8 +40,8 @@ app = FastAPI()
 # Add CORS middleware
 origins = [
     "http://localhost",
-    "http://localhost:5173", # This is the address where your React frontend runs
-    # You might add your deployed frontend URL here later, e.g., "https://your-codebuddy-ai.vercel.app"
+    "http://localhost:5173", # This is the address where React frontend runs
+    # May add  deployed frontend URL here later, e.g., "https://your-codebuddy-ai.vercel.app"
 ]
 
 app.add_middleware(
@@ -76,12 +75,11 @@ async def read_root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     # This is an example of accessing an environment variable
-    # (though we don't have one set up yet in .env)
     some_secret = os.getenv("MY_TEST_SECRET", "No secret set")
     return {"message": f"Hello, {name}! From the backend. Secret: {some_secret}"}
 
 
-# New endpoint for frontend communication (we'll use this in React)
+# New endpoint for frontend communication (this is used in React -- for testing)
 @app.get("/api/message")
 async def get_api_message():
     return {"api_message": "Hello from FastAPI backend! Your connection works!"}
@@ -96,7 +94,7 @@ async def explain_code(request: CodeExplanationRequest):
     programming_language = request.language
 
     # --- Construct the prompt for Google Gemini ---
-    # This is where 'prompt engineering' comes in. We want to guide the AI.
+    # This is where 'prompt engineering' comes in. AI needs to be guided.
     prompt = f"""
     As an expert programming tutor for beginners, explain the following {programming_language} code.
     Break down the code line-by-line or in small, logical blocks.

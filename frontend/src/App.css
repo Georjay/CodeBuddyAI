@@ -221,6 +221,26 @@
       color: #8892b0;
     }
 
+     .disclaimer-message {
+      font-size: 0.9em;
+      color: #e06c75; /* A subtle red/orange for warning */
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: 1px solid #e06c75;
+      border-radius: 6px;
+      background-color: rgba(224, 108, 117, 0.1); /* Very light background tint */
+      display: inline-block; /* To make padding/border apply correctly */
+      font-weight: 600; /* Slightly bolder text */
+    }
+
+    /* Responsive adjustments for disclaimer */
+    @media (max-width: 600px) {
+      .disclaimer-message {
+        font-size: 0.85em;
+        padding: 6px 10px;
+      }
+    }
+
     /* Responsive Adjustments */
     @media (min-width: 768px) {
       .app-main {

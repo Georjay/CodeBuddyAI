@@ -148,6 +148,7 @@ function App() {
         {/* <img src="/codeb.svg" alt="CodeBuddy AI Logo" className="app-logo" /> */}
         <h1>CodeBuddy AI</h1>
         <p>Your AI-powered assistant for understanding and debugging code.</p>
+        <p className="disclaimer-message">CodeBuddy AI can make mistakes, please double-check responses.</p>
       </header>
 
       <main className="app-main">
